@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 dotenv.config();
 
@@ -14,8 +15,15 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.get('/api/health', (req, res) => {
+const apiRouter = express.Router();
+
+apiRouter.get('/api/health', (req, res) => {
   res.json({ status: 'OK' });
 });
+
+app.use('/en', apiRouter);
+app.use('/am', apiRouter);
+
+app.use(errorMiddleware);
 
 export default app;

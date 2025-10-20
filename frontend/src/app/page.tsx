@@ -11,7 +11,7 @@ export default function Home() {
         count: 1,
       })}</Button>
 
-      <Button size="sm">{t("welcomeMessageJson")}</Button>
+      <Button size="sm">{t("welcomeMessage")}</Button>
     </div>
   )
 }
