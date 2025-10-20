@@ -1,46 +1,23 @@
-'use strict';
+"use strict";
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('UserRoles', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER,
+    // Convert many-to-many join table into a one-to-many relationship
+    // by adding a roleId foreign key column on Users.
+    // Make it nullable and use SET NULL on delete to be safe with seeding/order.
+    await queryInterface.addColumn('Users', 'roleId', {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Roles',
+        key: 'id',
       },
-      userId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Users',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-      roleId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'Roles',
-          key: 'id',
-        },
-        onDelete: 'CASCADE',
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     });
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable('UserRoles');
+    await queryInterface.removeColumn('Users', 'roleId');
   },
 };

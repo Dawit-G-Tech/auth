@@ -13,7 +13,6 @@ exports.User = void 0;
 const sequelize_typescript_1 = require("sequelize-typescript");
 const refreshToken_model_1 = require("./refreshToken.model");
 const role_model_1 = require("./role.model");
-const userRole_model_1 = require("./userRole.model");
 let User = class User extends sequelize_typescript_1.Model {
 };
 exports.User = User;
@@ -34,9 +33,14 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "refreshTokens", void 0);
 __decorate([
-    (0, sequelize_typescript_1.BelongsToMany)(() => role_model_1.Role, () => userRole_model_1.UserRole),
-    __metadata("design:type", Array)
-], User.prototype, "roles", void 0);
+    (0, sequelize_typescript_1.ForeignKey)(() => role_model_1.Role),
+    (0, sequelize_typescript_1.Column)({ type: sequelize_typescript_1.DataType.INTEGER, allowNull: true }),
+    __metadata("design:type", Number)
+], User.prototype, "roleId", void 0);
+__decorate([
+    (0, sequelize_typescript_1.BelongsTo)(() => role_model_1.Role),
+    __metadata("design:type", role_model_1.Role)
+], User.prototype, "role", void 0);
 exports.User = User = __decorate([
     (0, sequelize_typescript_1.Table)({ tableName: 'Users' })
 ], User);

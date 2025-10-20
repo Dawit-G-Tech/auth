@@ -4,11 +4,11 @@ import {
   Model,
   DataType,
   HasMany,
-  BelongsToMany,
+  BelongsTo,
+  ForeignKey,
 } from 'sequelize-typescript';
 import { RefreshToken } from './refreshToken.model';
 import { Role } from './role.model';
-import { UserRole } from './userRole.model';
 
 @Table({ tableName: 'Users' })
 export class User extends Model {
@@ -24,6 +24,10 @@ export class User extends Model {
   @HasMany(() => RefreshToken)
   refreshTokens!: RefreshToken[];
 
-  @BelongsToMany(() => Role, () => UserRole)
-  roles!: Role[];
+  @ForeignKey(() => Role)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  roleId?: number;
+
+  @BelongsTo(() => Role)
+  role?: Role;
 }
