@@ -11,11 +11,15 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": [
     "src/**/*",
     "config/**/*",
     "models/**/*"
+  ],
+  "files": [
+    "src/types/express.d.ts"
   ]
 }

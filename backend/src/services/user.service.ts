@@ -1,5 +1,5 @@
-import { User } from '../../models/user.model';
-import { Role } from '../../models/role.model';
+import { db } from '../../models';
+const { User, Role } = db;
 
 export class UserService {
 	static async getMe(userId: string) {

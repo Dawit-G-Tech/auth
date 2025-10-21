@@ -1,6 +1,5 @@
-import { User } from '../../models/user.model';
-import { Role } from '../../models/role.model';
-import { RefreshToken } from '../../models/refreshToken.model';
+import { db } from '../../models';
+const { User, Role, RefreshToken } = db;
 import { hashPassword, comparePassword } from '../utils/hash';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt';
 
