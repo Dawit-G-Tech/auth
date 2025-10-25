@@ -7,7 +7,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
 			return next({ status: 401, code: 'UNAUTHORIZED', message: 'Access denied.' });
 		}
 		const user = await UserService.getMe(req.user.id);
-		return res.json({ success: true, data: { user } });
+		return res.json({ success: true, data: user });
 	} catch (err) {
 		return next(err);
 	}

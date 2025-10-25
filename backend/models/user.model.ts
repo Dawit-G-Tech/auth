@@ -21,6 +21,15 @@ export class User extends Model {
   @Column({ type: DataType.STRING, allowNull: false })
   password!: string;
 
+  @Column({ type: DataType.STRING, allowNull: true })
+  googleId?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  avatar?: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  provider?: string;
+
   @HasMany(() => RefreshToken)
   refreshTokens!: RefreshToken[];
 

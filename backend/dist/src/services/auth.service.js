@@ -1,9 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
-const user_model_1 = require("../../models/user.model");
-const role_model_1 = require("../../models/role.model");
-const refreshToken_model_1 = require("../../models/refreshToken.model");
+const models_1 = require("../../models");
+const { User, Role, RefreshToken } = models_1.db;
 const hash_1 = require("../utils/hash");
 const jwt_1 = require("../utils/jwt");
 function parseRefreshExpiryToDate() {
@@ -19,18 +18,26 @@ function parseRefreshExpiryToDate() {
 }
 class AuthService {
     static async register(input) {
-        const existing = await user_model_1.User.findOne({ where: { email: input.email } });
+        const existing = await User.findOne({ where: { email: input.email } });
         if (existing) {
             throw { status: 400, code: 'EMAIL_IN_USE', message: 'Email already in use.' };
         }
         const password = await (0, hash_1.hashPassword)(input.password);
         // default role: user
-        const role = await role_model_1.Role.findOne({ where: { name: 'user' } });
-        const user = await user_model_1.User.create({ name: input.name, email: input.email, password, roleId: role?.id });
-        return { id: String(user.id), name: user.name, email: user.email };
+        const role = await Role.findOne({ where: { name: 'user' } });
+        const user = await User.create({ name: input.name, email: input.email, password, roleId: role?.id });
+        // Generate tokens for the new user
+        const roleName = role?.name || 'user';
+        const { token: accessToken, expiresIn: accessTokenExpiresIn } = (0, jwt_1.signAccessToken)({ id: String(user.id), email: user.email, role: roleName });
+        const { token: refreshToken, expiresIn: refreshTokenExpiresIn } = (0, jwt_1.signRefreshToken)({ id: String(user.id), email: user.email, role: roleName });
+        await RefreshToken.create({ token: refreshToken, expiryDate: parseRefreshExpiryToDate(), userId: user.id });
+        return {
+            user: { id: String(user.id), name: user.name, email: user.email, role: roleName },
+            tokens: { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn },
+        };
     }
     static async login(input) {
-        const user = await user_model_1.User.findOne({ where: { email: input.email }, include: [role_model_1.Role] });
+        const user = await User.findOne({ where: { email: input.email }, include: [Role] });
         if (!user) {
             throw { status: 401, code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.' };
         }
@@ -41,7 +48,7 @@ class AuthService {
         const roleName = user.role?.name || 'user';
         const { token: accessToken, expiresIn: accessTokenExpiresIn } = (0, jwt_1.signAccessToken)({ id: String(user.id), email: user.email, role: roleName });
         const { token: refreshToken, expiresIn: refreshTokenExpiresIn } = (0, jwt_1.signRefreshToken)({ id: String(user.id), email: user.email, role: roleName });
-        await refreshToken_model_1.RefreshToken.create({ token: refreshToken, expiryDate: parseRefreshExpiryToDate(), userId: user.id });
+        await RefreshToken.create({ token: refreshToken, expiryDate: parseRefreshExpiryToDate(), userId: user.id });
         return {
             user: { id: String(user.id), name: user.name, email: user.email, role: roleName },
             tokens: { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn },
@@ -51,7 +58,7 @@ class AuthService {
         // verify signature
         const payload = (0, jwt_1.verifyRefreshToken)(refreshToken);
         // verify presence in DB and not expired
-        const existing = await refreshToken_model_1.RefreshToken.findOne({ where: { token: refreshToken } });
+        const existing = await RefreshToken.findOne({ where: { token: refreshToken } });
         if (!existing) {
             throw { status: 401, code: 'INVALID_TOKEN', message: 'Invalid token.' };
         }
@@ -63,7 +70,7 @@ class AuthService {
         return { accessToken, accessTokenExpiresIn };
     }
     static async logout(refreshToken) {
-        await refreshToken_model_1.RefreshToken.destroy({ where: { token: refreshToken } });
+        await RefreshToken.destroy({ where: { token: refreshToken } });
         return { success: true };
     }
 }

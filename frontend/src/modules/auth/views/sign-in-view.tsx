@@ -4,7 +4,7 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import { OctagonAlertIcon,EyeIcon, EyeOffIcon } from "lucide-react";
 import { useForm } from "react-hook-form"; 
 import { useRouter } from "next/navigation";
-import {FaGithub, FaGoogle} from "react-icons/fa";
+import {FaGoogle} from "react-icons/fa";
 import { useState } from "react";
 
 import {Input} from "@/components/ui/input";
@@ -54,8 +54,9 @@ export const SignInView = () => {
     }
   };
 
-  const onSocial = (provider: "github" | "google") => {
-    setError(`${provider} login is not implemented yet`);
+  const onSocial = (provider: "google") => {
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    window.location.href = `${backendUrl}/api/auth/${provider}`;
   };
 
   return (
@@ -145,13 +146,9 @@ export const SignInView = () => {
                     Or continue with
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="flex justify-center">
                   <Button disabled={pending} onClick={() => onSocial( "google")} variant={"outline"} type="button" className="w-full">
                     <FaGoogle/>
-                  </Button>
-
-                  <Button disabled={pending} onClick={() => onSocial( "github")} variant={"outline"} type="button" className="w-full">
-                    <FaGithub/>
                   </Button>
                 </div>
                 <div className="text-center text-sm">

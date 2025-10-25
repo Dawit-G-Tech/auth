@@ -145,6 +145,15 @@ class AuthClient {
       localStorage.removeItem('user');
     }
   }
+
+  // Refresh authentication state from localStorage
+  refreshAuthState(): void {
+    if (typeof window !== 'undefined') {
+      this.accessToken = localStorage.getItem('accessToken');
+      this.refreshToken = localStorage.getItem('refreshToken');
+      this.user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null;
+    }
+  }
 }
 
 // Create singleton instance
@@ -158,5 +167,6 @@ export const {
   getCurrentUser,
   isAuthenticated,
   getMe,
-  refreshAccessToken
+  refreshAccessToken,
+  refreshAuthState
 } = authClient;

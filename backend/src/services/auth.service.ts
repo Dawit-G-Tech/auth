@@ -21,13 +21,27 @@ export class AuthService {
 	static async register(input: RegisterInput) {
 		const existing = await User.findOne({ where: { email: input.email } });
 		if (existing) {
+			// Check if user is a social auth user
+			if (existing.provider && existing.password === 'social-auth-no-password') {
+				throw { status: 400, code: 'EMAIL_IN_USE_SOCIAL', message: 'This email is already registered with social authentication. Please use Google or GitHub to sign in.' };
+			}
 			throw { status: 400, code: 'EMAIL_IN_USE', message: 'Email already in use.' };
 		}
 		const password = await hashPassword(input.password);
 		// default role: user
 		const role = await Role.findOne({ where: { name: 'user' } });
 		const user = await User.create({ name: input.name, email: input.email, password, roleId: role?.id });
-		return { id: String(user.id), name: user.name, email: user.email };
+		
+		// Generate tokens for the new user
+		const roleName = role?.name || 'user';
+		const { token: accessToken, expiresIn: accessTokenExpiresIn } = signAccessToken({ id: String(user.id), email: user.email, role: roleName });
+		const { token: refreshToken, expiresIn: refreshTokenExpiresIn } = signRefreshToken({ id: String(user.id), email: user.email, role: roleName });
+		await RefreshToken.create({ token: refreshToken, expiryDate: parseRefreshExpiryToDate(), userId: user.id as number });
+		
+		return {
+			user: { id: String(user.id), name: user.name, email: user.email, role: roleName },
+			tokens: { accessToken, accessTokenExpiresIn, refreshToken, refreshTokenExpiresIn },
+		};
 	}
 
 	static async login(input: LoginInput) {
@@ -35,6 +49,12 @@ export class AuthService {
 		if (!user) {
 			throw { status: 401, code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.' };
 		}
+		
+		// Check if user is a social auth user (has provider and default password)
+		if (user.provider && user.password === 'social-auth-no-password') {
+			throw { status: 401, code: 'SOCIAL_AUTH_USER', message: 'This account was created with social authentication. Please use Google or GitHub to sign in.' };
+		}
+		
 		const ok = await comparePassword(input.password, user.password);
 		if (!ok) {
 			throw { status: 401, code: 'INVALID_CREDENTIALS', message: 'Invalid email or password.' };

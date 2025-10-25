@@ -7,4 +7,9 @@ router.post('/register', auth_controller_1.register);
 router.post('/login', auth_controller_1.login);
 router.post('/refresh', auth_controller_1.refresh);
 router.post('/logout', auth_controller_1.logout);
+// Social auth routes
+router.get('/google', auth_controller_1.googleAuth);
+router.get('/google/callback', auth_controller_1.googleCallback);
+router.get('/github', auth_controller_1.githubAuth);
+router.get('/github/callback', auth_controller_1.githubCallback);
 exports.default = router;

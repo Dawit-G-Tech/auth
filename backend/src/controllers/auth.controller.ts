@@ -1,5 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
+import passport from '../config/passport';
+import { signAccessToken, signRefreshToken } from '../utils/jwt';
+import { db } from '../../models';
+const { RefreshToken } = db;
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
 	try {
@@ -7,8 +11,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 		if (!name || !email || !password) {
 			return next({ status: 400, code: 'VALIDATION_ERROR', message: 'Name, email and password are required.' });
 		}
-		const user = await AuthService.register({ name, email, password });
-		return res.status(201).json({ success: true, data: { user } });
+		const result = await AuthService.register({ name, email, password });
+		return res.status(201).json({ success: true, data: result });
 	} catch (err) {
 		return next(err);
 	}
@@ -52,5 +56,62 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
 		return next(err);
 	}
 };
+
+// Google OAuth routes
+export const googleAuth = passport.authenticate('google', {
+	scope: ['profile', 'email']
+});
+
+export const googleCallback = [
+	passport.authenticate('google', { failureRedirect: '/sign-in?error=authentication_failed' }),
+	async (req: Request, res: Response, next: NextFunction) => {
+		try {
+			console.log('Google callback - req.user:', req.user);
+			console.log('Google callback - req.session:', req.session);
+			const user = req.user as any;
+			if (!user) {
+				console.log('Google callback - No user found');
+				return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/sign-in?error=authentication_failed`);
+			}
+
+			// Generate tokens for the user
+			const roleName = user.role?.name || 'user';
+			const { token: accessToken, expiresIn: accessTokenExpiresIn } = signAccessToken({ 
+				id: String(user.id), 
+				email: user.email, 
+				role: roleName 
+			});
+			const { token: refreshToken, expiresIn: refreshTokenExpiresIn } = signRefreshToken({ 
+				id: String(user.id), 
+				email: user.email, 
+				role: roleName 
+			});
+
+			// Save refresh token to database
+			const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+			await RefreshToken.create({ 
+				token: refreshToken, 
+				expiryDate: refreshTokenExpiry, 
+				userId: user.id 
+			});
+
+			// Redirect to frontend with tokens
+			const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+			const redirectUrl = `${frontendUrl}/callback?accessToken=${accessToken}&refreshToken=${refreshToken}&user=${encodeURIComponent(JSON.stringify({
+				id: String(user.id),
+				name: user.name,
+				email: user.email,
+				role: roleName,
+				avatar: user.avatar
+			}))}`;
+			
+			res.redirect(redirectUrl);
+		} catch (err) {
+			return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/sign-in?error=authentication_failed`);
+		}
+	}
+];
+
+
 
 
