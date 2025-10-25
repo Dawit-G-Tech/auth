@@ -14,12 +14,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const formSchema = z.object({
     email: z.string().email(),
 })
 
 export const ForgotPasswordView = () => {
+    const { t } = useTranslation();
     const router = useRouter();
     const [error, setError] = useState<string | null>(null)
     const [pending, setPending] = useState(false);
@@ -46,10 +48,10 @@ export const ForgotPasswordView = () => {
                             <div className="flex flex-col gap-6">
                                 <div className="flex flex-col items-center text-center">
                                     <h1 className="text-2xl font-bold">
-                                        Reset your password
+                                        {t("auth.forgotPassword.title")}
                                     </h1>
                                     <p className="text-sm text-muted-foreground mt-2">
-                                        Enter your email and we&apos;ll send a reset link.
+                                        {t("auth.forgotPassword.subtitle")}
                                     </p>
                                 </div>
                                 <div className="grid gap-3">
@@ -58,9 +60,9 @@ export const ForgotPasswordView = () => {
                                         name="email"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel htmlFor="email">Email</FormLabel>
+                                                <FormLabel htmlFor="email">{t("auth.forgotPassword.email")}</FormLabel>
                                                 <FormControl>
-                                                    <Input id="email" placeholder="m@gmail.com" {...field} />
+                                                    <Input id="email" placeholder={t("auth.forgotPassword.emailPlaceholder")} {...field} />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -75,19 +77,19 @@ export const ForgotPasswordView = () => {
                                     </Alert>
                                 )}
                                 <Button disabled={pending} onClick={form.handleSubmit(onSubmit)} className="w-full" type="submit">
-                                    {pending ? "Sending..." : "Send reset link"}
+                                    {pending ? t("auth.forgotPassword.sending") : t("auth.forgotPassword.sendButton")}
                                 </Button>
                                 <div className="after:border-border relative text-center text-sm after:absolute 
                 after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                                     <span className="bg-card text-muted-foreground relative z-10 px-2">
-                                        Or continue with
+                                        {t("auth.forgotPassword.orContinueWith")}
                                     </span>
                                 </div>
                                 
                                 <div className="text-center text-sm text-accent-foreground">
-                                     Already remember your password?{" "} 
+                                     {t("auth.forgotPassword.rememberPassword")}{" "} 
                                      <Link href={"/sign-in"} className="underline underline-offset-4">
-                                        Sign in
+                                        {t("auth.forgotPassword.signIn")}
                                     </Link>
                                 </div>
                             </div>
@@ -103,9 +105,9 @@ export const ForgotPasswordView = () => {
                 </CardContent>
             </Card>
             <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-sm text-balance *:[a]:underline *:[a]:underline-offset-4">
-                By clicking continue, you agree to our{" "}
-                <a href="#">Terms of Service</a> and{" "}
-                <a href="#">Privacy Policy</a>.
+                {t("auth.common.agreeTerms")}{" "}
+                <a href="#">{t("auth.common.termsOfService")}</a> and{" "}
+                <a href="#">{t("auth.common.privacyPolicy")}</a>.
             </div>
         </div>
     )

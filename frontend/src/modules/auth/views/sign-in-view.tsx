@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import {FaGoogle} from "react-icons/fa";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import {Input} from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
@@ -23,6 +24,7 @@ const formSchema = z.object({
 
 
 export const SignInView = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -50,7 +52,7 @@ export const SignInView = () => {
       router.push("/");
     } catch (error: any) {
       setPending(false);
-      setError(error.message || "Login failed");
+      setError(error.message || t("auth.signIn.loginFailed"));
     }
   };
 
@@ -68,10 +70,10 @@ export const SignInView = () => {
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">
-                    Welcome Back
+                    {t("auth.signIn.title")}
                   </h1>
                   <p className="text-muted-foreground text-balance">
-                    Login to your account
+                    {t("auth.signIn.subtitle")}
                   </p>
                 </div>
                 <div className="grid gap-3">
@@ -80,12 +82,12 @@ export const SignInView = () => {
                   name="email"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel htmlFor="email">Email</FormLabel>
+                      <FormLabel htmlFor="email">{t("auth.signIn.email")}</FormLabel>
                       <FormControl>
                         <Input 
                           id="email"
                           type="email" 
-                          placeholder="Enter your email" 
+                          placeholder={t("auth.signIn.emailPlaceholder")} 
                           {...field} 
                         />
                       </FormControl>
@@ -100,13 +102,13 @@ export const SignInView = () => {
                   name="password"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel htmlFor="password">Password</FormLabel>
+                      <FormLabel htmlFor="password">{t("auth.signIn.password")}</FormLabel>
                       <FormControl>
                         <div className="relative">
                             <Input
                                 id="password"
                                 type={showPassword ? "text" : "password"}
-                                placeholder="********"
+                                placeholder={t("auth.signIn.passwordPlaceholder")}
                                 {...field}
                             />
                             <button
@@ -128,7 +130,7 @@ export const SignInView = () => {
                   /> 
                   <div className="flex justify-end text-xs">
                     <Link href="/forgot-password" className="text-muted-foreground hover:text-primary underline underline-offset-4">
-                        Forgot password?
+                        {t("auth.signIn.forgotPassword")}
                     </Link>
                   </div>
                 </div>
@@ -139,11 +141,11 @@ export const SignInView = () => {
                 </Alert>
                 )}
                 <Button disabled={pending} type="submit" className="w-full">
-                  Sign In
+                  {t("auth.signIn.signInButton")}
                 </Button>
                 <div className="after:boarder-boarder relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                   <span className="bg-card text-muted-foreground relative z-10 px-2">
-                    Or continue with
+                    {t("auth.signIn.orContinueWith")}
                   </span>
                 </div>
                 <div className="flex justify-center">
@@ -152,9 +154,9 @@ export const SignInView = () => {
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Don&apos;t have an account?{" "}
+                  {t("auth.signIn.noAccount")}{" "}
                   <Link href="/sign-up" className="underline underline-offset-4">
-                    Sign Up
+                    {t("auth.signIn.signUp")}
                   </Link>
                 </div>
               </div>
@@ -169,12 +171,12 @@ export const SignInView = () => {
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our{" "}
+        {t("auth.common.agreeTerms")}{" "}
         <a href="#" className="underline">
-          Terms of Service
+          {t("auth.common.termsOfService")}
         </a> and{" "}
         <a href="#" className="underline">
-          Privacy Policy
+          {t("auth.common.privacyPolicy")}
         </a>.
       </div>
     </div>

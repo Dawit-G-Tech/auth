@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {FaGoogle} from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 import {Input} from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
@@ -14,7 +15,6 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from "@/
 import {Card, CardContent} from "@/components/ui/card";
 import {Alert, AlertTitle} from "@/components/ui/alert";
 import Link from "next/link";
-
 
 const formSchema = z.object({
   name:z.string().min(4,{message:"Name is Required"}),
@@ -28,6 +28,7 @@ const formSchema = z.object({
 });
 
 export const SignUpView = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -57,7 +58,7 @@ export const SignUpView = () => {
       router.push("/");
     } catch (error: any) {
       setPending(false);
-      setError(error.message || "Registration failed");
+      setError(error.message || t("auth.signUp.registrationFailed"));
     }
   };
 
@@ -75,10 +76,10 @@ export const SignUpView = () => {
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
                   <h1 className="text-2xl font-bold">
-                    Let&apos;s get you started
+                    {t("auth.signUp.title")}
                   </h1>
                   <p className="text-muted-foreground text-balance">
-                    Create your account
+                    {t("auth.signUp.subtitle")}
                   </p>
                 </div>
                                 <div className="grid gap-3">
@@ -87,12 +88,12 @@ export const SignUpView = () => {
                   name="name"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel htmlFor="name">Name</FormLabel>
+                      <FormLabel htmlFor="name">{t("auth.signUp.name")}</FormLabel>
                       <FormControl>
                         <Input 
                           id="name"
                           type="text" 
-                          placeholder="Jhon Doe" 
+                          placeholder={t("auth.signUp.namePlaceholder")} 
                           {...field} 
                         />
                       </FormControl>
@@ -107,12 +108,12 @@ export const SignUpView = () => {
                   name="email"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel htmlFor="email">Email</FormLabel>
+                      <FormLabel htmlFor="email">{t("auth.signUp.email")}</FormLabel>
                       <FormControl>
                         <Input 
                           id="email"
                           type="email" 
-                          placeholder="Enter your email" 
+                          placeholder={t("auth.signUp.emailPlaceholder")} 
                           {...field} 
                         />
                       </FormControl>
@@ -127,12 +128,12 @@ export const SignUpView = () => {
                   name="password"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel htmlFor="password">Password</FormLabel>
+                      <FormLabel htmlFor="password">{t("auth.signUp.password")}</FormLabel>
                       <FormControl>
                         <Input 
                           id="password"
                           type="password" 
-                          placeholder="*********" 
+                          placeholder={t("auth.signUp.passwordPlaceholder")} 
                           {...field} 
                         />
                       </FormControl>
@@ -147,12 +148,12 @@ export const SignUpView = () => {
                   name="confirmPassword"
                   render={({field}) => (
                     <FormItem>
-                      <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+                      <FormLabel htmlFor="confirmPassword">{t("auth.signUp.confirmPassword")}</FormLabel>
                       <FormControl>
                         <Input 
                           id="confirmPassword"
                           type="password" 
-                          placeholder="*********" 
+                          placeholder={t("auth.signUp.passwordPlaceholder")} 
                           {...field} 
                         />
                       </FormControl>
@@ -169,11 +170,11 @@ export const SignUpView = () => {
                 </Alert>
                 )}
                 <Button disabled={pending} type="submit" className="w-full">
-                  Sign Up
+                  {t("auth.signUp.signUpButton")}
                 </Button>
                 <div className="after:boarder-boarder relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
                   <span className="bg-card text-muted-foreground relative z-10 px-2">
-                    Or continue with
+                    {t("auth.signUp.orContinueWith")}
                   </span>
                 </div>
                 <div className="flex justify-center">
@@ -182,9 +183,9 @@ export const SignUpView = () => {
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Already have an account?{" "}
+                  {t("auth.signUp.haveAccount")}{" "}
                   <Link href="/sign-in" className="underline underline-offset-4">
-                    Sign in
+                    {t("auth.signUp.signIn")}
                   </Link>
                 </div>
               </div>
@@ -199,12 +200,12 @@ export const SignUpView = () => {
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our{" "}
+        {t("auth.common.agreeTerms")}{" "}
         <a href="#" className="underline">
-          Terms of Service
+          {t("auth.common.termsOfService")}
         </a> and{" "}
         <a href="#" className="underline">
-          Privacy Policy
+          {t("auth.common.privacyPolicy")}
         </a>.
       </div>
     </div>

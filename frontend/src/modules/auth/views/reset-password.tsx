@@ -14,6 +14,7 @@ import { OctagonAlertIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslation } from "react-i18next";
 
 const formSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -24,6 +25,7 @@ const formSchema = z.object({
 });
 
 export const ResetPasswordView = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export const ResetPasswordView = () => {
   const onSubmit = async (formData: z.infer<typeof formSchema>) => {
     setError(null);
     if (!token) {
-      setError("Invalid or missing reset token.");
+      setError(t("auth.resetPassword.invalidToken"));
       return;
     }
   };
@@ -55,9 +57,9 @@ export const ResetPasswordView = () => {
             <form className="p-6 md:p-8" onSubmit={form.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col items-center text-center">
-                  <h1 className="text-2xl font-bold">Set a new password</h1>
+                  <h1 className="text-2xl font-bold">{t("auth.resetPassword.title")}</h1>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Enter and confirm your new password to finish resetting it.
+                    {t("auth.resetPassword.subtitle")}
                   </p>
                 </div>
 
@@ -67,9 +69,9 @@ export const ResetPasswordView = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="password">New password</FormLabel>
+                        <FormLabel htmlFor="password">{t("auth.resetPassword.newPassword")}</FormLabel>
                         <FormControl>
-                          <Input id="password" type="password" placeholder="********" {...field} />
+                          <Input id="password" type="password" placeholder={t("auth.resetPassword.passwordPlaceholder")} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -81,9 +83,9 @@ export const ResetPasswordView = () => {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel htmlFor="confirmPassword">Confirm password</FormLabel>
+                        <FormLabel htmlFor="confirmPassword">{t("auth.resetPassword.confirmPassword")}</FormLabel>
                         <FormControl>
-                          <Input id="confirmPassword" type="password" placeholder="********" {...field} />
+                          <Input id="confirmPassword" type="password" placeholder={t("auth.resetPassword.passwordPlaceholder")} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -99,13 +101,13 @@ export const ResetPasswordView = () => {
                 )}
 
                 <Button disabled={pending} className="w-full" type="submit">
-                  {pending ? "Resetting..." : "Reset password"}
+                  {pending ? t("auth.resetPassword.resetting") : t("auth.resetPassword.resetButton")}
                 </Button>
 
                 <div className="text-center text-sm text-accent-foreground">
-                  Remembered your password?{" "}
+                  {t("auth.resetPassword.rememberedPassword")}{" "}
                   <Link href="/sign-in" className="underline underline-offset-4">
-                    Sign in
+                    {t("auth.resetPassword.signIn")}
                   </Link>
                 </div>
               </div>
@@ -119,9 +121,9 @@ export const ResetPasswordView = () => {
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-sm text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our{" "}
-        <a href="#">Terms of Service</a> and{" "}
-        <a href="#">Privacy Policy</a>.
+        {t("auth.common.agreeTerms")}{" "}
+        <a href="#">{t("auth.common.termsOfService")}</a> and{" "}
+        <a href="#">{t("auth.common.privacyPolicy")}</a>.
       </div>
     </div>
   );
