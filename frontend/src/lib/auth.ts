@@ -31,6 +31,15 @@ export interface RegisterCredentials {
   password: string;
 }
 
+export interface ForgotPasswordCredentials {
+  email: string;
+}
+
+export interface ResetPasswordCredentials {
+  token: string;
+  password: string;
+}
+
 // Auth API functions
 export const authAPI = {
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
@@ -114,6 +123,42 @@ export const authAPI = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.message || 'Failed to get user info');
+    }
+
+    const result = await response.json();
+    return result.data;
+  },
+
+  async forgotPassword(credentials: ForgotPasswordCredentials): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to send password reset email');
+    }
+
+    const result = await response.json();
+    return result.data;
+  },
+
+  async resetPassword(credentials: ResetPasswordCredentials): Promise<{ success: boolean; message: string }> {
+    const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to reset password');
     }
 
     const result = await response.json();

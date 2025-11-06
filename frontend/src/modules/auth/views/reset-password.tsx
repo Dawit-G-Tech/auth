@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-//import { resetPassword } from "@/lib/auth-client";
+import { resetPassword } from "@/lib/auth-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,22 @@ export const ResetPasswordView = () => {
     if (!token) {
       setError(t("auth.resetPassword.invalidToken"));
       return;
+    }
+
+    setPending(true);
+    
+    try {
+      const result = await resetPassword({ 
+        token, 
+        password: formData.password 
+      });
+      toast.success(result.message);
+      router.push('/sign-in');
+    } catch (error: any) {
+      setError(error.message || t("auth.resetPassword.error"));
+      toast.error(error.message || t("auth.resetPassword.error"));
+    } finally {
+      setPending(false);
     }
   };
 

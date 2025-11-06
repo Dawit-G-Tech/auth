@@ -57,6 +57,32 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
 	}
 };
 
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { email } = req.body || {};
+		if (!email) {
+			return next({ status: 400, code: 'VALIDATION_ERROR', message: 'Email is required.' });
+		}
+		const result = await AuthService.forgotPassword({ email });
+		return res.json({ success: true, data: result });
+	} catch (err) {
+		return next(err);
+	}
+};
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const { token, password } = req.body || {};
+		if (!token || !password) {
+			return next({ status: 400, code: 'VALIDATION_ERROR', message: 'Token and password are required.' });
+		}
+		const result = await AuthService.resetPassword({ token, password });
+		return res.json({ success: true, data: result });
+	} catch (err) {
+		return next(err);
+	}
+};
+
 // Google OAuth routes
 export const googleAuth = passport.authenticate('google', {
 	scope: ['profile', 'email']

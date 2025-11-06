@@ -78,4 +78,28 @@ export function verifyRefreshToken(token: string): AuthTokenPayload {
 	return decoded as AuthTokenPayload;
 }
 
+function getPasswordResetConfig() {
+	const secret = requireEnv('JWT_PASSWORD_RESET_SECRET') || requireEnv('JWT_ACCESS_SECRET');
+	const expiresRaw = process.env.PASSWORD_RESET_TOKEN_EXPIRY || '1h';
+	const expiresIn = expiresRaw as ExpiresIn;
+	return { secret, expiresIn } as const;
+}
+
+export function signPasswordResetToken(user: UserTokenSubject): { token: string; expiresIn: string } {
+	const { secret, expiresIn } = getPasswordResetConfig();
+	const payload: Partial<AuthTokenPayload> = {
+		userId: user.id,
+		email: user.email,
+		role: user.role,
+	};
+	const token = jwt.sign(payload, secret, { ...baseSignOptions(expiresIn), subject: user.id });
+	return { token, expiresIn: String(expiresIn) };
+}
+
+export function verifyPasswordResetToken(token: string): AuthTokenPayload {
+	const { secret } = getPasswordResetConfig();
+	const decoded = jwt.verify(token, secret, { algorithms: ['HS256'] });
+	return decoded as AuthTokenPayload;
+}
+
 

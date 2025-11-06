@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Alert, AlertTitle } from "@/components/ui/alert";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-//import { forgetPassword } from "@/lib/auth-client";
+import { forgotPassword } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -35,7 +35,19 @@ export const ForgotPasswordView = () => {
 
     const onSubmit = async (formData: z.infer<typeof formSchema>) => {
         setError(null);
+        setPending(true);
         
+        try {
+            const result = await forgotPassword({ email: formData.email });
+            toast.success(result.message);
+            // Optionally redirect to sign-in page
+            router.push('/sign-in');
+        } catch (error: any) {
+            setError(error.message || t("auth.forgotPassword.error"));
+            toast.error(error.message || t("auth.forgotPassword.error"));
+        } finally {
+            setPending(false);
+        }
     }
 
 

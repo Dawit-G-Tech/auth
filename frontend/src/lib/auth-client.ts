@@ -1,7 +1,7 @@
 
 'use client';
 
-import { authAPI, type User, type AuthResponse, type LoginCredentials, type RegisterCredentials } from './auth';
+import { authAPI, type User, type AuthResponse, type LoginCredentials, type RegisterCredentials, type ForgotPasswordCredentials, type ResetPasswordCredentials } from './auth';
 
 // Client-side authentication state management
 class AuthClient {
@@ -154,6 +154,26 @@ class AuthClient {
       this.user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null;
     }
   }
+
+  // Forgot password
+  async forgotPassword(credentials: ForgotPasswordCredentials): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await authAPI.forgotPassword(credentials);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Reset password
+  async resetPassword(credentials: ResetPasswordCredentials): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await authAPI.resetPassword(credentials);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 // Create singleton instance
@@ -168,5 +188,7 @@ export const {
   isAuthenticated,
   getMe,
   refreshAccessToken,
-  refreshAuthState
+  refreshAuthState,
+  forgotPassword,
+  resetPassword
 } = authClient;
